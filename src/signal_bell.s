@@ -25,6 +25,26 @@ have_args:
   ldr x22, [x20, #16]  // argv[2]
   ldr x23, [x20, #24]  // argv[3]
 
+  // Optional argv[4] = source, default to "manual".
+  cmp x19, #5
+  b.ge have_source
+  adrp x24, default_source@PAGE
+  add x24, x24, default_source@PAGEOFF
+  b source_ready
+have_source:
+  ldr x24, [x20, #32]  // argv[4]
+source_ready:
+
+  // Optional argv[5] = owner, default to "unassigned".
+  cmp x19, #6
+  b.ge have_owner
+  adrp x25, default_owner@PAGE
+  add x25, x25, default_owner@PAGEOFF
+  b owner_ready
+have_owner:
+  ldr x25, [x20, #40]  // argv[5]
+owner_ready:
+
   // Reject inputs containing single quotes to prevent SQL breakage.
   mov x0, x21
   mov w1, #39
@@ -37,6 +57,16 @@ have_args:
   cbnz x0, quote_error
 
   mov x0, x23
+  mov w1, #39
+  bl _strchr
+  cbnz x0, quote_error
+
+  mov x0, x24
+  mov w1, #39
+  bl _strchr
+  cbnz x0, quote_error
+
+  mov x0, x25
   mov w1, #39
   bl _strchr
   cbnz x0, quote_error
@@ -77,6 +107,28 @@ have_args:
 
   adrp x0, buffer@PAGE
   add x0, x0, buffer@PAGEOFF
+  adrp x1, sql_mid@PAGE
+  add x1, x1, sql_mid@PAGEOFF
+  bl _strcat
+
+  adrp x0, buffer@PAGE
+  add x0, x0, buffer@PAGEOFF
+  mov x1, x24
+  bl _strcat
+
+  adrp x0, buffer@PAGE
+  add x0, x0, buffer@PAGEOFF
+  adrp x1, sql_mid@PAGE
+  add x1, x1, sql_mid@PAGEOFF
+  bl _strcat
+
+  adrp x0, buffer@PAGE
+  add x0, x0, buffer@PAGEOFF
+  mov x1, x25
+  bl _strcat
+
+  adrp x0, buffer@PAGE
+  add x0, x0, buffer@PAGEOFF
   adrp x1, sql_suffix@PAGE
   add x1, x1, sql_suffix@PAGEOFF
   bl _strcat
@@ -101,15 +153,19 @@ quote_error:
 
 .section __TEXT,__cstring,cstring_literals
 usage:
-  .asciz "Usage: signal-bell <severity> <category> <note>"
+  .asciz "Usage: signal-bell <severity> <category> <note> [source] [owner]"
 err_quote:
   .asciz "Error: input contains a single quote ('). Please remove or replace it."
 sql_prefix:
-  .asciz "insert into groupscholar_signal_bell.signals (severity, category, note, created_at) values ('"
+  .asciz "insert into groupscholar_signal_bell.signals (severity, category, note, source, owner, created_at) values ('"
 sql_mid:
   .asciz "','"
 sql_suffix:
   .asciz "', now());"
+default_source:
+  .asciz "manual"
+default_owner:
+  .asciz "unassigned"
 
 .section __DATA,__bss
   .balign 16

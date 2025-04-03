@@ -8,7 +8,7 @@ Group Scholar ops signal logger that produces safe SQL insert statements from a 
 - Guardrails against single-quote inputs that would break SQL.
 - Production database schema and seed data included.
 - Simple record script that pipes the CLI output into `psql`.
-- Optional `source` tag for tracking where a signal originated.
+- Optional `source` and `owner` tags for tracking origin and accountability.
 
 ## Tech
 
@@ -31,6 +31,9 @@ bin/signal-bell high ops "Mentor response lagging"
 
 # with optional source tag
 bin/signal-bell high ops "Mentor response lagging" pager
+
+# with optional source + owner tags
+bin/signal-bell high ops "Mentor response lagging" pager ops-lead
 ```
 
 Record into production database:
@@ -42,6 +45,9 @@ scripts/record.sh high ops "Mentor response lagging"
 
 # with optional source tag
 scripts/record.sh high ops "Mentor response lagging" pager
+
+# with optional source + owner tags
+scripts/record.sh high ops "Mentor response lagging" pager ops-lead
 ```
 
 Initialize schema + seed data in production:
@@ -55,6 +61,7 @@ scripts/db_init.sh
 
 - Inputs must not contain single quotes. Replace them with double quotes or remove them.
 - Source defaults to `manual` when omitted.
+- Owner defaults to `unassigned` when omitted.
 - The production database credentials must be provided via `DATABASE_URL`.
 
 ## Testing

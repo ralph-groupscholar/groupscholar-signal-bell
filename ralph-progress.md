@@ -14,3 +14,7 @@
 - Added optional source tagging to the SQL generator with a default fallback.
 - Expanded schema + seeds to store signal sources and backfill for existing installs.
 - Updated scripts, tests, and docs for the new argument.
+
+## Iteration 154 - 2026-02-08 (Follow-up)
+- Added a daily summary view for signal rollups.
+- Updated DB init script and docs to include the new view.

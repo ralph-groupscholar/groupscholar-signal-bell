@@ -9,6 +9,7 @@ Group Scholar ops signal logger that produces safe SQL insert statements from a 
 - Production database schema and seed data included.
 - Simple record script that pipes the CLI output into `psql`.
 - Optional `source` and `owner` tags for tracking origin and accountability.
+- Daily summary view for quick signal rollups.
 
 ## Tech
 
@@ -55,6 +56,12 @@ Initialize schema + seed data in production:
 ```bash
 export DATABASE_URL="postgres://USER:PASSWORD@HOST:PORT/postgres"
 scripts/db_init.sh
+```
+
+Query the daily summary view:
+
+```sql
+select * from groupscholar_signal_bell.signal_summary_daily limit 10;
 ```
 
 ## Notes
